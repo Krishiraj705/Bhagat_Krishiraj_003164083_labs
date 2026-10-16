@@ -9,6 +9,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import model.Supplier;
 import model.SupplierDirectory;
+import ui.AdminRole.ManageSuppliersJPanel;
+import ui.SupplierRole.ManageProductCatalogJPanel;
 
 /**
  *
@@ -29,6 +31,7 @@ public MainJFrame() {
     cmbRole.addItem("Supplier");
     cmbSupplier.removeAllItems();
     cmbSupplier.setEnabled(false);
+    cmbSupplier.setPrototypeDisplayValue("XXXXXXXXXXXXXXX");
     btnLogout.setEnabled(false);
 }
 
