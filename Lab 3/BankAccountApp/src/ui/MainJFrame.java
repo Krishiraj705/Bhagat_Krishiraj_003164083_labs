@@ -42,6 +42,8 @@ public MainJFrame() {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jSplitPane1.setDividerLocation(200);
+
         btnCreateAccount.setText("Create Account");
         btnCreateAccount.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -64,7 +66,7 @@ public MainJFrame() {
                 .addGroup(controlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnCreateAccount)
                     .addComponent(btnManageAccounts))
-                .addGap(0, 261, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         controlPanelLayout.setVerticalGroup(
             controlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -72,13 +74,13 @@ public MainJFrame() {
                 .addComponent(btnCreateAccount)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnManageAccounts)
-                .addGap(0, 248, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        jSplitPane1.setRightComponent(controlPanel);
+        jSplitPane1.setLeftComponent(controlPanel);
 
         userProcessContainer.setLayout(new java.awt.CardLayout());
-        jSplitPane1.setLeftComponent(userProcessContainer);
+        jSplitPane1.setRightComponent(userProcessContainer);
 
         getContentPane().add(jSplitPane1, java.awt.BorderLayout.CENTER);
 
