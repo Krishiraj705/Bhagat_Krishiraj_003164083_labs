@@ -151,8 +151,27 @@ public class ViewProductDetailJPanel extends javax.swing.JPanel {
         layout.previous(userProcessContainer);
     }
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        product.setPrice(Integer.parseInt(txtPrice.getText()));
-        product.setProdName(txtName.getText());
+        // Validate before saving so a bad price never crashes the app (edited by Krishiraj Bhagat)
+        String name = txtName.getText().trim();
+        String priceText = txtPrice.getText().trim();
+        if (name.isEmpty() || priceText.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Product name and price cannot be empty.", "Warning", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        double price;
+        try {
+            price = Double.parseDouble(priceText);
+        } catch (NumberFormatException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Price must be a number.", "Warning", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (price <= 0) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Price must be greater than 0.", "Warning", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        product.setPrice(price);
+        product.setProdName(name);
+        javax.swing.JOptionPane.showMessageDialog(this, "Product updated.", "Info", javax.swing.JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnSaveActionPerformed
    
     // Variables declaration - do not modify//GEN-BEGIN:variables
