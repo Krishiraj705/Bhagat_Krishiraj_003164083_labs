@@ -6,6 +6,7 @@ package ui.CustomerRole;
 
 import java.awt.CardLayout;
 import javax.swing.JPanel;
+import model.OrderItem;
 
 /**
  *
@@ -13,13 +14,32 @@ import javax.swing.JPanel;
  */
 public class ViewOrderItemDetailJPanel extends javax.swing.JPanel {
 
-    
+    // Shows one item from the cart (read only). Edited by Krishiraj Bhagat.
+    private JPanel userProcessContainer;
+    private OrderItem orderItem;
+
     /**
      * Creates new form ViewOrderItemDetailJPanel
      */
-    public ViewOrderItemDetailJPanel() {
+    public ViewOrderItemDetailJPanel(JPanel userProcessContainer, OrderItem orderItem) {
         initComponents();
-        
+        this.userProcessContainer = userProcessContainer;
+        this.orderItem = orderItem;
+        showOrderItem();
+    }
+
+    /** Fills the fields with the order item's details. */
+    private void showOrderItem() {
+        txtProductName.setText(orderItem.getProduct().getProdName());
+        txtProductId.setText(String.valueOf(orderItem.getProduct().getModelNumber()));
+        txtSalesPrice.setText(String.valueOf(orderItem.getSalesPrice()));
+        txtQuantity.setText(String.valueOf(orderItem.getQuantity()));
+        txtTotal.setText(String.valueOf(orderItem.getTotal()));
+        txtProductName.setEditable(false);
+        txtProductId.setEditable(false);
+        txtSalesPrice.setEditable(false);
+        txtQuantity.setEditable(false);
+        txtTotal.setEditable(false);
     }
 
     /**
@@ -143,8 +163,10 @@ public class ViewOrderItemDetailJPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-        // TODO add your handling code here:
-        
+        // Go back to the Browse Products screen
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
     }//GEN-LAST:event_btnBackActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

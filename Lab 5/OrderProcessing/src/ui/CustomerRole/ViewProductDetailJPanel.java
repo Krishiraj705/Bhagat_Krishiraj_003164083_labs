@@ -16,11 +16,28 @@ import javax.swing.JPanel;
  */
 public class ViewProductDetailJPanel extends javax.swing.JPanel {
 
+    // Customer view of one product (read only). Edited by Krishiraj Bhagat.
+    private JPanel userProcessContainer;
+    private Product product;
 
     /** Creates new form CreateProductJPanel */
-    public ViewProductDetailJPanel() {
+    public ViewProductDetailJPanel(JPanel userProcessContainer, Product product) {
         initComponents();
-        
+        this.userProcessContainer = userProcessContainer;
+        this.product = product;
+        showProduct();
+    }
+
+    /** Fills the fields with the product's details. */
+    private void showProduct() {
+        nameField.setText(product.getProdName());
+        idField.setText(String.valueOf(product.getModelNumber()));
+        txtPrice.setText(String.valueOf(product.getPrice()));
+        txtAvail.setText(String.valueOf(product.getAvailability()));
+        nameField.setEditable(false);
+        idField.setEditable(false);
+        txtPrice.setEditable(false);
+        txtAvail.setEditable(false);
     }
     
     /** This method is called from within the constructor to
@@ -126,8 +143,10 @@ public class ViewProductDetailJPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void backButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButton1ActionPerformed
-        // TODO add your handling code here:
-        
+        // Go back to the Browse Products screen
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
     }//GEN-LAST:event_backButton1ActionPerformed
     
     
