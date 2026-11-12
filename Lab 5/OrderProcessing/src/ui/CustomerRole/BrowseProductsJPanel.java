@@ -464,13 +464,50 @@ public class BrowseProductsJPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnProductDetailsActionPerformed
 
     private void btnCheckOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckOutActionPerformed
-        // TODO add your handling code here:
-       
+        if (currentOrder.getOrderItemList().isEmpty()) {
+            warn("Your cart is empty. Please add a product first.");
+            return;
+        }
+        masterOrderList.addOrder(currentOrder);
+        info("Thank you for shopping! Order #" + currentOrder.getOrderNumber() + " placed.\nTotal: $" + currentOrder.getOrderTotal() + "\nWe look forward to see you again!");
+        currentOrder = new Order(); // start a new, empty cart
+        populateCartTable();
     }//GEN-LAST:event_btnCheckOutActionPerformed
 
     private void btnModifyQuantityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModifyQuantityActionPerformed
-        // TODO add your handling code here:
-        
+        OrderItem item = getSelectedOrderItem();
+        if (item == null) {
+            warn("Please select an item in the cart.");
+            return;
+        }
+        String text = txtNewQuantity.getText().trim();
+        if (text.isEmpty()) {
+            warn("Please enter the new quantity.");
+            return;
+        }
+        int newQuantity;
+        try {
+            newQuantity = Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            warn("Quantity must be a whole number.");
+            return;
+        }
+        if (newQuantity <= 0) {
+            warn("Quantity must be at least 1. Use Remove to delete the item.");
+            return;
+        }
+        Product product = item.getProduct();
+        int difference = newQuantity - item.getQuantity();
+        if (difference > product.getAvailability()) {
+            warn("Only " + product.getAvailability() + " more of " + product.getProdName() + " in stock.");
+            return;
+        }
+        product.setAvailability(product.getAvailability() - difference);
+        item.setQuantity(newQuantity);
+        populateProductTable();
+        populateCartTable();
+        txtNewQuantity.setText("");
+        info("Quantity updated.");
     }//GEN-LAST:event_btnModifyQuantityActionPerformed
 
     private void btnSearchProductActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchProductActionPerformed
@@ -503,11 +540,33 @@ public class BrowseProductsJPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnSearchProductActionPerformed
 
     private void btnRemoveOrderItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveOrderItemActionPerformed
-       
+        OrderItem item = getSelectedOrderItem();
+        if (item == null) {
+            warn("Please select an item in the cart.");
+            return;
+        }
+        int answer = JOptionPane.showConfirmDialog(this, "Remove " + item.getProduct().getProdName() + " from the cart?", "Confirm", JOptionPane.YES_NO_OPTION);
+        if (answer != JOptionPane.YES_OPTION) {
+            return;
+        }
+        Product product = item.getProduct();
+        product.setAvailability(product.getAvailability() + item.getQuantity()); // put back in stock
+        currentOrder.removeOrderItem(item);
+        populateProductTable();
+        populateCartTable();
+        info("Item removed from cart.");
     }//GEN-LAST:event_btnRemoveOrderItemActionPerformed
 
     private void btnViewOrderItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewOrderItemActionPerformed
-        
+        OrderItem item = getSelectedOrderItem();
+        if (item == null) {
+            warn("Please select an item in the cart.");
+            return;
+        }
+        ViewOrderItemDetailJPanel voidjp = new ViewOrderItemDetailJPanel(userProcessContainer, item);
+        userProcessContainer.add("ViewOrderItemDetailJPanel", voidjp);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.next(userProcessContainer);
     }//GEN-LAST:event_btnViewOrderItemActionPerformed
 
     
