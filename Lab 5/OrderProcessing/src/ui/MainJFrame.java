@@ -6,8 +6,11 @@
 package ui;
 
 import java.awt.CardLayout;
+import model.Business;
+import model.MasterOrderList;
 import model.SupplierDirectory;
 import ui.AdminRole.AdminWorkAreaJPanel;
+import ui.CustomerRole.CustomerWorkAreaJPanel;
 import ui.SupplierRole.LoginSupplierJPanel;
 
 /**
@@ -19,11 +22,17 @@ public class MainJFrame extends javax.swing.JFrame {
     /**
      * Creates new form MainJFrame
      */
+    Business business;
     SupplierDirectory supplierDirectory;
-    
+    MasterOrderList masterOrderList;
+
     public MainJFrame() {
         initComponents();
-        supplierDirectory = new SupplierDirectory();
+        // Load the business with sample suppliers/products (edited by Krishiraj Bhagat)
+        business = Business.configure();
+        supplierDirectory = business.getSupplierDirectory();
+        masterOrderList = business.getMasterOrderList();
+        btnCustomer.setEnabled(true); // the customer role is now available
         setSize(830,600);
     }
 
@@ -140,6 +149,10 @@ public class MainJFrame extends javax.swing.JFrame {
 
     private void btnCustomerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomerActionPerformed
 
+        CustomerWorkAreaJPanel cwajp = new CustomerWorkAreaJPanel(userProcessContainer, supplierDirectory, masterOrderList);
+        userProcessContainer.add("CustomerWorkAreaJPanel", cwajp);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.next(userProcessContainer);
     }//GEN-LAST:event_btnCustomerActionPerformed
 
     /**

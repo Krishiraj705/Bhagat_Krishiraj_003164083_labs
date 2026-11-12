@@ -5,12 +5,13 @@
  */
 package ui.CustomerRole;
 
+import model.MasterOrderList;
+import model.Order;
+import model.OrderItem;
 import model.Product;
 import model.Supplier;
 import model.SupplierDirectory;
-import ui.SupplierRole.ViewProductDetailJPanel;
 import java.awt.CardLayout;
-import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
@@ -19,16 +20,162 @@ import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author Rushabh
+ * Customer shopping logic added by Krishiraj Bhagat.
  */
 public class BrowseProductsJPanel extends javax.swing.JPanel {
 
+    private JPanel userProcessContainer;
+    private SupplierDirectory supplierDirectory;
+    private MasterOrderList masterOrderList;
+    private Order currentOrder; // the customer's cart
+
     /** Creates new form BrowseProducts */
-    public BrowseProductsJPanel() {
+    public BrowseProductsJPanel(JPanel userProcessContainer, SupplierDirectory supplierDirectory, MasterOrderList masterOrderList) {
         initComponents();
-      
+        this.userProcessContainer = userProcessContainer;
+        this.supplierDirectory = supplierDirectory;
+        this.masterOrderList = masterOrderList;
+        currentOrder = new Order();
+
+        // The generated code has no listener for "Add to Cart", so we attach one here
+        btnAddToCart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addToCart();
+            }
+        });
+
+        populateSupplierCombo();
+        populateProductTable();
+        populateCartTable();
     }
 
-    
+    /** Puts every supplier into the supplier drop-down. */
+    private void populateSupplierCombo() {
+        cmbSupplier.removeAllItems();
+        for (Supplier supplier : supplierDirectory.getSupplierlist()) {
+            cmbSupplier.addItem(supplier);
+        }
+    }
+
+    /** Shows all products of the selected supplier. */
+    private void populateProductTable() {
+        DefaultTableModel model = (DefaultTableModel) tblProductCatalog.getModel();
+        model.setRowCount(0);
+        Supplier supplier = (Supplier) cmbSupplier.getSelectedItem();
+        if (supplier == null) {
+            return;
+        }
+        for (Product product : supplier.getProductCatalog().getProductcatalog()) {
+            addProductRow(model, product);
+        }
+    }
+
+    private void addProductRow(DefaultTableModel model, Product product) {
+        Object[] row = new Object[4];
+        row[0] = product;
+        row[1] = product.getModelNumber();
+        row[2] = product.getPrice();
+        row[3] = product.getAvailability();
+        model.addRow(row);
+    }
+
+    /** Shows every item that is currently in the cart. */
+    private void populateCartTable() {
+        DefaultTableModel model = (DefaultTableModel) tblCart.getModel();
+        model.setRowCount(0);
+        for (OrderItem item : currentOrder.getOrderItemList()) {
+            Object[] row = new Object[4];
+            row[0] = item;
+            row[1] = item.getSalesPrice();
+            row[2] = item.getQuantity();
+            row[3] = item.getTotal();
+            model.addRow(row);
+        }
+    }
+
+    /** Returns the product selected in the catalog table, or null. */
+    private Product getSelectedProduct() {
+        int row = tblProductCatalog.getSelectedRow();
+        if (row < 0) {
+            return null;
+        }
+        return (Product) tblProductCatalog.getValueAt(row, 0);
+    }
+
+    /** Returns the item selected in the cart table, or null. */
+    private OrderItem getSelectedOrderItem() {
+        int row = tblCart.getSelectedRow();
+        if (row < 0) {
+            return null;
+        }
+        return (OrderItem) tblCart.getValueAt(row, 0);
+    }
+
+    private void warn(String message) {
+        JOptionPane.showMessageDialog(this, message, "Warning", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private void info(String message) {
+        JOptionPane.showMessageDialog(this, message, "Info", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /** Adds the selected product to the cart after checking price, quantity and stock. */
+    private void addToCart() {
+        Product product = getSelectedProduct();
+        if (product == null) {
+            warn("Please select a product from the catalog.");
+            return;
+        }
+
+        String priceText = txtSalesPrice.getText().trim();
+        if (priceText.isEmpty()) {
+            warn("Please enter a sales price.");
+            return;
+        }
+        double salesPrice;
+        try {
+            salesPrice = Double.parseDouble(priceText);
+        } catch (NumberFormatException e) {
+            warn("Sales price must be a number.");
+            return;
+        }
+        if (salesPrice < product.getPrice()) {
+            warn("Sales price cannot be lower than the product price ($" + product.getPrice() + ").");
+            return;
+        }
+
+        try {
+            spnQuantity.commitEdit(); // use the number typed in the spinner
+        } catch (java.text.ParseException e) {
+            warn("Quantity must be a whole number.");
+            return;
+        }
+        int quantity = (Integer) spnQuantity.getValue();
+        if (quantity <= 0) {
+            warn("Quantity must be at least 1.");
+            return;
+        }
+        if (quantity > product.getAvailability()) {
+            warn("Only " + product.getAvailability() + " of " + product.getProdName() + " left in stock.");
+            return;
+        }
+
+        OrderItem existing = currentOrder.findOrderItem(product);
+        if (existing != null) {
+            // Same product again: increase the quantity and use the new price
+            existing.setQuantity(existing.getQuantity() + quantity);
+            existing.setSalesPrice(salesPrice);
+        } else {
+            currentOrder.addNewOrderItem(product, salesPrice, quantity);
+        }
+        product.setAvailability(product.getAvailability() - quantity);
+
+        populateProductTable();
+        populateCartTable();
+        txtSalesPrice.setText("");
+        spnQuantity.setValue(0);
+        info(quantity + " x " + product.getProdName() + " added to cart.");
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -283,18 +430,37 @@ public class BrowseProductsJPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmbSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbSupplierActionPerformed
-        // TODO add your handling code here:
-        
+        // Show the products of the newly selected supplier
+        populateProductTable();
     }//GEN-LAST:event_cmbSupplierActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-        // TODO add your handling code here:
-        
+        // If the cart has items, put them back in stock before leaving
+        if (!currentOrder.getOrderItemList().isEmpty()) {
+            int answer = JOptionPane.showConfirmDialog(this, "Leaving this page will empty your cart. Continue?", "Confirm", JOptionPane.YES_NO_OPTION);
+            if (answer != JOptionPane.YES_OPTION) {
+                return;
+            }
+            for (OrderItem item : currentOrder.getOrderItemList()) {
+                Product product = item.getProduct();
+                product.setAvailability(product.getAvailability() + item.getQuantity());
+            }
+        }
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnProductDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductDetailsActionPerformed
-        // TODO add your handling code here:
-        
+        Product product = getSelectedProduct();
+        if (product == null) {
+            warn("Please select a product from the catalog.");
+            return;
+        }
+        ViewProductDetailJPanel vpdjp = new ViewProductDetailJPanel(userProcessContainer, product);
+        userProcessContainer.add("ViewProductDetailJPanel", vpdjp);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.next(userProcessContainer);
     }//GEN-LAST:event_btnProductDetailsActionPerformed
 
     private void btnCheckOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckOutActionPerformed
@@ -308,7 +474,32 @@ public class BrowseProductsJPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnModifyQuantityActionPerformed
 
     private void btnSearchProductActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchProductActionPerformed
-        
+        Supplier supplier = (Supplier) cmbSupplier.getSelectedItem();
+        if (supplier == null) {
+            warn("Please select a supplier first.");
+            return;
+        }
+        String text = txtSearch.getText().trim();
+        if (text.isEmpty()) {
+            populateProductTable(); // empty search shows all products again
+            return;
+        }
+        int id;
+        try {
+            id = Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            warn("Please enter a product ID (a whole number).");
+            return;
+        }
+        Product product = supplier.getProductCatalog().searchProduct(id);
+        if (product == null) {
+            info("No product with ID " + id + " for supplier " + supplier.getSupplyName() + ".");
+            return;
+        }
+        DefaultTableModel model = (DefaultTableModel) tblProductCatalog.getModel();
+        model.setRowCount(0);
+        addProductRow(model, product);
+        tblProductCatalog.setRowSelectionInterval(0, 0);
     }//GEN-LAST:event_btnSearchProductActionPerformed
 
     private void btnRemoveOrderItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveOrderItemActionPerformed
