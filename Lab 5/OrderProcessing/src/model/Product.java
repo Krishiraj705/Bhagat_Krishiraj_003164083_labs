@@ -12,8 +12,9 @@ package model;
 public class Product {
 
     private String prodName;
-    private int price;
+    private double price;
     private int modelNumber;
+    private int availability; // number of units in stock (edited by Krishiraj Bhagat)
 
     private static int count = 0;
 
@@ -35,11 +36,11 @@ public class Product {
         this.prodName = prodName;
     }
 
-    public int getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
@@ -49,6 +50,14 @@ public class Product {
 
     public void setModelNumber(int modelNumber) {
         this.modelNumber = modelNumber;
+    }
+
+    public int getAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(int availability) {
+        this.availability = availability;
     }
 
 }
