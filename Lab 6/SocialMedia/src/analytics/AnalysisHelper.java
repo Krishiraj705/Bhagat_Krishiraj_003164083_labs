@@ -112,4 +112,16 @@ public class AnalysisHelper {
         printTop("Q4 - Top 5 inactive users based on total posts:", users, postNumbers, "Post count");
     }
 
+    //Q5 - Top 5 inactive users based on total comments they created.
+    public void getPassiveCommentUsers() {
+        DataStore data = DataStore.getInstance();
+        Map<Integer, Integer> commentNumbers = emptyCounts();
+        for (Comment c : data.getComments().values()) {
+            add(commentNumbers, c.getUserId(), 1);
+        }
+        List<User> users = new ArrayList<>(data.getUsers().values());
+        Collections.sort(users, new UserMapComparator(commentNumbers, true));
+        printTop("Q5 - Top 5 inactive users based on total comments created:", users, commentNumbers, "Comment count");
+    }
+
 }
