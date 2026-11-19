@@ -93,7 +93,8 @@ public class SocialMedia_Main {
     }
     
     private void runAnalysis(){
-        // TODO
-        helper.getAverageLikesPerComments();
+        // Lab 6 requirements (Krishiraj Bhagat)
+        helper.getAverageLikesPerComments();   // Q1
+        helper.getMaxLikeCommentPost();        // Q2
     }
 }
