@@ -59,4 +59,21 @@ public class AnalysisHelper {
                 + " (its comment " + commentWithMaxLikes.getId() + " has " + commentWithMaxLikes.getLikes() + " likes)");
     }
 
+    //Q3 - Find the post with most comments.
+    public void getPostWithMostComments() {
+        DataStore data = DataStore.getInstance();
+        Post postWithMostComments = null;
+        for (Post p : data.getPosts().values()) {
+            if (postWithMostComments == null || p.getComments().size() > postWithMostComments.getComments().size()) {
+                postWithMostComments = p;
+            }
+        }
+        if (postWithMostComments == null) {
+            System.out.println("Q3 - Post with most comments: no posts found");
+            return;
+        }
+        System.out.println("Q3 - Post with most comments: Post " + postWithMostComments.getPostId()
+                + " (" + postWithMostComments.getComments().size() + " comments)");
+    }
+
 }

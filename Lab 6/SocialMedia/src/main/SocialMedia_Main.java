@@ -96,5 +96,6 @@ public class SocialMedia_Main {
         // Lab 6 requirements (Krishiraj Bhagat)
         helper.getAverageLikesPerComments();   // Q1
         helper.getMaxLikeCommentPost();        // Q2
+        helper.getPostWithMostComments();      // Q3
     }
 }
