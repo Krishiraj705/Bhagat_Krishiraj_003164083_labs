@@ -99,5 +99,7 @@ public class SocialMedia_Main {
         helper.getPostWithMostComments();      // Q3
         helper.getPassiveUsers();              // Q4
         helper.getPassiveCommentUsers();       // Q5
+        helper.getPassiveOverallUsers();       // Q6
+        helper.getActiveOverallUsers();        // Q7
     }
 }

@@ -124,4 +124,33 @@ public class AnalysisHelper {
         printTop("Q5 - Top 5 inactive users based on total comments created:", users, commentNumbers, "Comment count");
     }
 
+    /** overall activity = comments created + likes on those comments + posts created */
+    private Map<Integer, Integer> overallActivity() {
+        DataStore data = DataStore.getInstance();
+        Map<Integer, Integer> overall = emptyCounts();
+        for (Comment c : data.getComments().values()) {
+            add(overall, c.getUserId(), 1 + c.getLikes());
+        }
+        for (Post p : data.getPosts().values()) {
+            add(overall, p.getUserId(), 1);
+        }
+        return overall;
+    }
+
+    //Q6 - Top 5 inactive users overall (sum of comments, posts and likes).
+    public void getPassiveOverallUsers() {
+        Map<Integer, Integer> overall = overallActivity();
+        List<User> users = new ArrayList<>(DataStore.getInstance().getUsers().values());
+        Collections.sort(users, new UserMapComparator(overall, true));
+        printTop("Q6 - Top 5 inactive users overall (comments + posts + likes):", users, overall, "Overall count");
+    }
+
+    //Q7 - Top 5 proactive users overall (sum of comments, posts and likes).
+    public void getActiveOverallUsers() {
+        Map<Integer, Integer> overall = overallActivity();
+        List<User> users = new ArrayList<>(DataStore.getInstance().getUsers().values());
+        Collections.sort(users, new UserMapComparator(overall, false));
+        printTop("Q7 - Top 5 proactive users overall (comments + posts + likes):", users, overall, "Overall count");
+    }
+
 }
